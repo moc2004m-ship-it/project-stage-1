@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  workflows: write
 
 jobs:
   extract:
@@ -31,6 +30,7 @@ jobs:
           fi
           rm -rf _extracted
           rm -f stage1_infra.zip
+          rm -rf .github/workflows/ci-cd.yml
 
       - name: Commit extracted structure
         run: |
