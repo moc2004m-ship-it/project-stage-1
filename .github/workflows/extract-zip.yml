@@ -1,0 +1,40 @@
+name: Extract Stage 1 Zip
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract stage1_infra.zip into repo root
+        run: |
+          if [ ! -f stage1_infra.zip ]; then
+            echo "No zip found — nothing to extract."
+            exit 0
+          fi
+          unzip -o stage1_infra.zip -d _extracted
+          if [ -d _extracted/project ]; then
+            cp -r _extracted/project/. .
+          else
+            cp -r _extracted/. .
+          fi
+          rm -rf _extracted
+          rm -f stage1_infra.zip
+
+      - name: Commit extracted structure
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "chore: extract stage1_infra.zip into proper folder structure"
+          git push
